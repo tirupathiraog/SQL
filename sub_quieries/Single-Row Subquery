@@ -1,0 +1,74 @@
+-- ===========================================================
+-- SQL Subqueries - Type 1 (Single-Row Subqueries)
+-- Author: Tirupathi Rao
+-- Description: Practice queries on single-row subqueries using job_postings_fact dataset
+-- ===========================================================
+
+-- 🧩 Query 1 — Above Average Salary
+SELECT job_id, job_title, company_name, salary_year_avg
+FROM job_postings_fact
+WHERE salary_year_avg >
+      (SELECT AVG(salary_year_avg)
+       FROM job_postings_fact)
+ORDER BY salary_year_avg DESC;
+
+-- 🧩 Query 2 — Highest Salary Job(s)
+SELECT job_id, job_title, company_name, salary_year_avg
+FROM job_postings_fact
+WHERE salary_year_avg =
+      (SELECT MAX(salary_year_avg)
+       FROM job_postings_fact);
+
+-- 🧩 Query 3 — Lowest Salary Job(s)
+SELECT job_id, job_title, company_name, salary_year_avg
+FROM job_postings_fact
+WHERE salary_year_avg =
+      (SELECT MIN(salary_year_avg)
+       FROM job_postings_fact);
+
+-- 🧩 Query 4 — Above Google’s Average Salary
+SELECT job_id, job_title, company_name, salary_year_avg
+FROM job_postings_fact
+WHERE salary_year_avg >
+      (SELECT AVG(salary_year_avg)
+       FROM job_postings_fact
+       WHERE company_name = 'Google');
+
+-- 🧩 Query 5 — Jobs Above Python Developer Salary
+SELECT job_id, job_title, company_name, salary_year_avg
+FROM job_postings_fact
+WHERE salary_year_avg >
+      (SELECT salary_year_avg
+       FROM job_postings_fact
+       WHERE job_title = 'Python Developer'
+       LIMIT 1);
+
+-- 🧩 Query 6 — Jobs Posted After Latest “Data Analyst” Job
+SELECT job_id, job_title, job_posted_date
+FROM job_postings_fact
+WHERE job_posted_date >
+      (SELECT MAX(job_posted_date)
+       FROM job_postings_fact
+       WHERE job_title = 'Data Analyst');
+
+-- ✅ Alternative for MySQL/PostgreSQL
+SELECT * 
+FROM job_postings_fact
+WHERE job_posted_date > (
+    SELECT job_posted_date
+    FROM job_postings_fact
+    WHERE job_title = 'Data Analyst'
+    ORDER BY job_posted_date DESC
+    LIMIT 1
+);
+
+-- 🧩 Query 7 — Jobs Between Min and Max Salary Range
+SELECT job_id, job_title, salary_year_avg
+FROM job_postings_fact
+WHERE salary_year_avg BETWEEN
+      (SELECT MIN(salary_year_avg) FROM job_postings_fact)
+  AND (SELECT MAX(salary_year_avg) FROM job_postings_fact);
+
+-- ===========================================================
+-- END OF FILE
+-- ===========================================================
