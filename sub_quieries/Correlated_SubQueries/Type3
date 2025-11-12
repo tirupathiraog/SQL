@@ -1,1 +1,86 @@
+-- ===========================================================
+-- SQL Subqueries - Type 3 (Correlated Subqueries)
+-- Author: Tirupathi Rao
+-- Description: Correlated subquery examples and interview-style queries
+-- ===========================================================
 
+-- 1) Jobs with salary greater than the average salary in their own category
+SELECT job_id, job_title, job_category, salary_year_avg
+FROM job_postings_data j1
+WHERE salary_year_avg > (
+    SELECT AVG(j2.salary_year_avg)
+    FROM job_postings_data j2
+    WHERE j2.job_category = j1.job_category
+);
+
+-- 2) Latest job posted for each company (rows equal to company max date)
+SELECT job_id, company_name, job_title, job_posted_date
+FROM job_postings_data j1
+WHERE job_posted_date = (
+    SELECT MAX(j2.job_posted_date)
+    FROM job_postings_data j2
+    WHERE j2.company_name = j1.company_name
+);
+
+-- 3) Jobs that pay above their company's average salary
+SELECT job_id, company_name, job_title, salary_year_avg
+FROM job_postings_data j1
+WHERE salary_year_avg > (
+    SELECT AVG(j2.salary_year_avg)
+    FROM job_postings_data j2
+    WHERE j2.company_name = j1.company_name
+);
+
+-- 4) Companies that have at least one AI job (EXISTS)
+SELECT DISTINCT company_name
+FROM job_postings_data j1
+WHERE EXISTS (
+    SELECT 1
+    FROM job_postings_data j2
+    WHERE j2.company_name = j1.company_name
+      AND j2.job_category = 'AI'
+);
+
+-- 5) Companies that do NOT have any AI job (NOT EXISTS)
+SELECT DISTINCT company_name
+FROM job_postings_data j1
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM job_postings_data j2
+    WHERE j2.company_name = j1.company_name
+      AND j2.job_category = 'AI'
+);
+
+-- 6) Each company's second-highest salary (correlated counting approach)
+-- Explanation: For each job, count how many distinct salaries are >= current; if count = 2, it's second highest.
+SELECT job_id, company_name, job_title, salary_year_avg
+FROM job_postings_data j1
+WHERE 2 = (
+    SELECT COUNT(DISTINCT j2.salary_year_avg)
+    FROM job_postings_data j2
+    WHERE j2.company_name = j1.company_name
+      AND j2.salary_year_avg >= j1.salary_year_avg
+);
+
+-- 7) Jobs that are above the average salary of jobs posted in the same month (date-based correlated)
+SELECT job_id, job_title, job_posted_date, salary_year_avg
+FROM job_postings_data j1
+WHERE salary_year_avg > (
+    SELECT AVG(j2.salary_year_avg)
+    FROM job_postings_data j2
+    WHERE EXTRACT(YEAR FROM j2.job_posted_date) = EXTRACT(YEAR FROM j1.job_posted_date)
+      AND EXTRACT(MONTH FROM j2.job_posted_date) = EXTRACT(MONTH FROM j1.job_posted_date)
+);
+
+-- 8) For each job, find whether it's the top-paid job in its location (returns those that are)
+SELECT job_id, job_title, job_location, salary_year_avg
+FROM job_postings_data j1
+WHERE salary_year_avg = (
+    SELECT MAX(j2.salary_year_avg)
+    FROM job_postings_data j2
+    WHERE j2.job_location = j1.job_location
+);
+
+-- ===========================================================
+-- END OF FILE
+-- ===========================================================
