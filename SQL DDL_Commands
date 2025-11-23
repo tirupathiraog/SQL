@@ -19,6 +19,13 @@ ADD EMAIL VARCHAR(20) NOT NULL;
 -- REMOVE THE COLUMN FROM THE TABLE
 >> ALTER TABLE PERSONS
 DROP COLUMN EMAIL;
+------------------------------------------------------------
+alter table super1 rename to supermarket
+alter table supermarket drop column emaail
+alter table supermarket alter emp_name type char(20)
+alter table supermarket rename salary_new to salary
+------------------------------------------------------------
+
 
 3. DROP
 
